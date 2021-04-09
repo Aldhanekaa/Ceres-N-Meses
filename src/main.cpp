@@ -63,7 +63,7 @@ void loop() {
     Serial.print("Sunlight intensity: ");
     Serial.println(Sunlight_intensity_previous_data.dataInFloat);
 
-    if (Sunlight_intensity > 500) {
+    if (Sunlight_intensity > 1000) {
       TurnLED(true, &LED_GROWTH);
     }else {
       TurnLED(false, &LED_GROWTH);
