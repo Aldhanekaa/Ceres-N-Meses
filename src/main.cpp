@@ -7,6 +7,20 @@
 #define DHTTYPE DHT11 // DHT 11
 #define LED 5
 
+#ifndef _LED_DATA
+  #include <data/LED_DATA.h>
+#endif
+
+#ifndef _sensor_previous_data_union
+  #include <data/sensor_previous_data_union.h>
+#endif
+
+#ifndef __arrayOfData
+  #include <data/arrayOfDatas.h>
+#endif
+
+#include <utils/turn_led.h>
+
 unsigned int Sunlight_intensity;
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
@@ -14,26 +28,6 @@ DHT_Unified dht(DHTPIN, DHTTYPE);
 float DHT11_Temperature;
 
 float maksTemperature = 25.0;
-
-// for storing previous data
-union sensor_previous_data_union {
-  float dataInFloat;
-  char dataInChar;
-  int dataInInt;
-};
-
-// struct for the LED
-struct LED_DATA {
-  int LED_PIN;
-  bool status;
-};
-
-template<typename T, int ROWS>
-struct arrayOfData {
-  T datas[ROWS];
-};
-
-void TurnLED(bool status, LED_DATA *previous_data);
 
 sensor_previous_data_union DHT11_PREVIOUS_Temperature_DATA;
 sensor_previous_data_union DHT11_PREVIOUS_Humidity_DATA;
@@ -76,9 +70,9 @@ void loop() {
     Serial.println(Sunlight_intensity_previous_data.dataInFloat);
 
     if (Sunlight_intensity >= 1000) {
-      TurnLED(true, &LED_GROWTH);
+      turn_led(true, &LED_GROWTH);
     }else if (temperature.temperature >= maksTemperature && Sunlight_intensity < 1000) {
-      TurnLED(false, &LED_GROWTH);
+      turn_led(false, &LED_GROWTH);
     }
   }
 
@@ -99,11 +93,11 @@ void loop() {
       Serial.println("=================================================\n\n");
 
       if (temperature.temperature < maksTemperature) {
-        TurnLED(true, &LED_GROWTH);
+        turn_led(true, &LED_GROWTH);
       }
       else if (Sunlight_intensity < 1000)
       {
-        TurnLED(false, &LED_GROWTH);
+        turn_led(false, &LED_GROWTH);
       }
     }
 
@@ -112,8 +106,6 @@ void loop() {
     }
   }
 
-
-  
   if (isnan(humidity.relative_humidity)) {
     Serial.println(F("Error reading humidity!"));
   }
@@ -126,20 +118,20 @@ void loop() {
   // delay(500);
 }
 
-// if status is true, then LED will turn to on, but if status is off LED will turn to off
-void TurnLED(bool status, LED_DATA *previous_data) {
-  // if the led is off and status is true then turn it on
-  if (status)
-  {
-    digitalWrite(previous_data->LED_PIN, HIGH);
-    previous_data->LED_PIN = true;
-    Serial.println(previous_data->LED_PIN);
+// // if status is true, then LED will turn to on, but if status is off LED will turn to off
+// void turn_led(bool status, LED_DATA *previous_data) {
+//   // if the led is off and status is true then turn it on
+//   if (status)
+//   {
+//     digitalWrite(previous_data->LED_PIN, HIGH);
+//     previous_data->LED_PIN = true;
+//     Serial.println(previous_data->LED_PIN);
 
-  }
-  else if (!status)
-  {
-    digitalWrite(previous_data->LED_PIN, LOW);
-    previous_data->LED_PIN = false;
-    Serial.println(previous_data->LED_PIN);
-  }
-}
+//   }
+//   else if (!status)
+//   {
+//     digitalWrite(previous_data->LED_PIN, LOW);
+//     previous_data->LED_PIN = false;
+//     Serial.println(previous_data->LED_PIN);
+//   }
+// }
