@@ -1,13 +1,13 @@
 #include <imports.h>
 
-#define DHTPIN A0 // Digital pin connected to the DHT sensor
+#define DHTPIN A1 // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT11 // DHT 11
 #define LED 5
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
 
 float DHT11_Temperature;
-
+unsigned int Sunlight_intensity;
 float maksTemperature = 25.0;
 
 sensor_previous_data_union DHT11_PREVIOUS_Temperature_DATA;
@@ -30,7 +30,7 @@ void setup() {
 
 }
 
-void loop() {
+void loop() { 
 
   sensors_event_t humidity;
   sensors_event_t temperature;
@@ -40,66 +40,66 @@ void loop() {
 
   // Get humidity event and print its value.
   dht.humidity().getEvent(&humidity);
-  unsigned int Sunlight_intensity;
   Sunlight_intensity = analogRead(A0);
-  // Serial.println(Sunlight_intensity);
+  Serial.println(map(analogRead(A2), 1023, 200, 0, 100));
   // digitalWrite(true, &LED_GROWTH);
 
+    // Serial.print("Sunlight intensity: ");
+    // Serial.println(Sunlight_intensity);
+
+
+  if (Sunlight_intensity != Sunlight_intensity_previous_data.dataInFloat)
+  {
+    Sunlight_intensity_previous_data.dataInFloat = Sunlight_intensity;
     Serial.print("Sunlight intensity: ");
-    Serial.println(analogRead(Sunlight_intensity));
+    Serial.println(Sunlight_intensity);
 
+    // if (Sunlight_intensity >= 1000) {
+    //   turn_led(true, &LED_GROWTH);
+    // }else if (temperature.temperature >= maksTemperature && Sunlight_intensity < 1000) {
+    //   turn_led(false, &LED_GROWTH);
+    // }
+  }
 
-  // if (Sunlight_intensity != Sunlight_intensity_previous_data.dataInFloat)
-  // {
-  //   Sunlight_intensity_previous_data.dataInFloat = Sunlight_intensity;
-  //   Serial.print("Sunlight intensity: ");
-  //   Serial.println(Sunlight_intensity_previous_data.dataInFloat);
+  if (isnan(temperature.temperature)) {
+    Serial.println(F("Error reading temperature!"));
+  }
+  else {
 
-  //   if (Sunlight_intensity >= 1000) {
-  //     turn_led(true, &LED_GROWTH);
-  //   }else if (temperature.temperature >= maksTemperature && Sunlight_intensity < 1000) {
-  //     turn_led(false, &LED_GROWTH);
-  //   }
-  // }
+    if (DHT11_PREVIOUS_Temperature_DATA.dataInFloat != temperature.temperature || (DHT11_PREVIOUS_Humidity_DATA.dataInFloat != humidity.relative_humidity && !isnan(humidity.relative_humidity))) {
 
-  // if (isnan(temperature.temperature)) {
-  //   Serial.println(F("Error reading temperature!"));
-  // }
-  // else {
+      Serial.println("=================================================");
+      Serial.print("event.temperature: ");
+      Serial.print(temperature.temperature);
+      Serial.println(" C");
+      Serial.print(F("Humidity: "));
+      Serial.print(humidity.relative_humidity);
+      Serial.println(F("%"));
 
-  //   if (DHT11_PREVIOUS_Temperature_DATA.dataInFloat != temperature.temperature || (DHT11_PREVIOUS_Humidity_DATA.dataInFloat != humidity.relative_humidity && !isnan(humidity.relative_humidity))) {
+      Serial.println("=================================================\n\n");
 
-  //     Serial.println("=================================================");
-  //     Serial.print("event.temperature: ");
-  //     Serial.println(temperature.temperature);
-  //     Serial.print(F("Humidity: "));
-  //     Serial.print(humidity.relative_humidity);
-  //     Serial.println(F("%"));
+      if (temperature.temperature < maksTemperature) {
+        turn_led(true, &LED_GROWTH);
+      }
+      else if (Sunlight_intensity < 1000)
+      {
+        turn_led(false, &LED_GROWTH);
+      }
+    }
 
-  //     Serial.println("=================================================\n\n");
+    if (DHT11_PREVIOUS_Temperature_DATA.dataInFloat != temperature.temperature) {
+      DHT11_PREVIOUS_Temperature_DATA.dataInFloat = temperature.temperature;
+    }
+  }
 
-  //     if (temperature.temperature < maksTemperature) {
-  //       turn_led(true, &LED_GROWTH);
-  //     }
-  //     else if (Sunlight_intensity < 1000)
-  //     {
-  //       turn_led(false, &LED_GROWTH);
-  //     }
-  //   }
+  if (isnan(humidity.relative_humidity)) {
+    Serial.println(F("Error reading humidity!"));
+  }
+  else {
+    if (DHT11_PREVIOUS_Humidity_DATA.dataInFloat != humidity.relative_humidity) {
+      DHT11_PREVIOUS_Humidity_DATA.dataInFloat = humidity.relative_humidity;
+    }
+  }
 
-  //   if (DHT11_PREVIOUS_Temperature_DATA.dataInFloat != temperature.temperature) {
-  //     DHT11_PREVIOUS_Temperature_DATA.dataInFloat = temperature.temperature;
-  //   }
-  // }
-
-  // if (isnan(humidity.relative_humidity)) {
-  //   Serial.println(F("Error reading humidity!"));
-  // }
-  // else {
-  //   if (DHT11_PREVIOUS_Humidity_DATA.dataInFloat != humidity.relative_humidity) {
-  //     DHT11_PREVIOUS_Humidity_DATA.dataInFloat = humidity.relative_humidity;
-  //   }
-  // }
-
-  // delay(500);
+  delay(500);
 }

@@ -11,7 +11,7 @@
   #include <data/sensor_previous_data_union.h>
 #endif
 
-#ifndef __arrayOfData
+#ifndef _xwarrayOfData
   #include <data/arrayOfDatas.h>
 #endif
 
