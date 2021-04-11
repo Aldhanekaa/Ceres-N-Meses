@@ -14,6 +14,7 @@ sensor_previous_data_union DHT11_PREVIOUS_Temperature_DATA;
 sensor_previous_data_union DHT11_PREVIOUS_Humidity_DATA;
 sensor_previous_data_union Sunlight_intensity_previous_data;
 LED_DATA LED_GROWTH;
+
 arrayOfData<sensor_previous_data_union, 2> DATAS_FOR_LED_GROWTH;
 
 void setup() {
@@ -101,5 +102,5 @@ void loop() {
     }
   }
 
-  delay(500);
+  // delay(500);
 }
