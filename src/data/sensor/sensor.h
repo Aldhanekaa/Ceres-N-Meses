@@ -6,11 +6,11 @@
 
 template<typename OUTSIDE_TYPENAME, typename INSIDE_TYPENAME> 
 class Sensor {    
-    // protected:
-
-    public:
+    protected:
         OUTSIDE_TYPENAME Outside;
         INSIDE_TYPENAME Inside;
+        
+    public:
 
         String SensorName;
 

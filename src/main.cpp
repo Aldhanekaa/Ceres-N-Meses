@@ -18,8 +18,6 @@ float DHT11_Temperature;
 int Sunlight_intensity;
 float maksTemperature = 25.0;
 
-sensor_previous_data_union DHT11_PREVIOUS_Temperature_DATA;
-sensor_previous_data_union DHT11_PREVIOUS_Humidity_DATA;
 sensor_previous_data_union Sunlight_intensity_previous_data;
 sensor_previous_data_union Soil_moisture_previous_data;
 
@@ -27,15 +25,10 @@ arrayOfData<sensor_previous_data_union, 2> DHT_INSIDE;
 
 LED_DATA LED_GROWTH;
 
-struct BRUH {
-  int temperature;
-  int humidity;
-};
+DHT11_DATA PPP;
+DHT11_DATA PPPP;
 
-BRUH PPP;
-BRUH PPPP;
-
-DHT11_SENSOR_INSTANCE<BRUH,BRUH> DHT11_SENSOR("DHT11",PPP,PPPP);
+DHT11_SENSOR_INSTANCE DHT11_SENSOR("DHT11",PPP,PPPP);
 
 arrayOfData<sensor_previous_data_union, 2> DATAS_FOR_LED_GROWTH;
 
@@ -77,8 +70,8 @@ void loop() {
   int dayInInt = Date.day();
   String day = daysOfTheWeek[Date.dayOfTheWeek()];
 
-  Serial.print("DAY :");
-  Serial.println(DHT11_SENSOR.SensorName);
+  // Serial.print("DAY :");
+  // Serial.println(DHT11_SENSOR.GetOutsideSensorData().humidity);
 
   /*
     2021/4/13 (Tue) 15:40:42
@@ -150,7 +143,7 @@ void loop() {
   }
   else {
 
-    if (DHT11_PREVIOUS_Temperature_DATA.dataInFloat != temperature.temperature || (DHT11_PREVIOUS_Humidity_DATA.dataInFloat != humidity.relative_humidity && !isnan(humidity.relative_humidity))) {
+    if (DHT11_SENSOR.GetInsideSensorData().temperature != temperature.temperature || (DHT11_SENSOR.GetInsideSensorData().humidity != humidity.relative_humidity && !isnan(humidity.relative_humidity))) {
 
       Serial.println("=================================================");
       Serial.print("event.temperature: ");
@@ -178,8 +171,8 @@ void loop() {
       // }
     }
 
-    if (DHT11_PREVIOUS_Temperature_DATA.dataInFloat != temperature.temperature) {
-      DHT11_PREVIOUS_Temperature_DATA.dataInFloat = temperature.temperature;
+    if (DHT11_SENSOR.GetInsideSensorData().temperature != temperature.temperature) {
+      DHT11_SENSOR.setInkubatorTemperature(temperature.temperature);
     }
   }
 
@@ -187,8 +180,8 @@ void loop() {
     Serial.println(F("Error reading humidity!"));
   }
   else {
-    if (DHT11_PREVIOUS_Humidity_DATA.dataInFloat != humidity.relative_humidity) {
-      DHT11_PREVIOUS_Humidity_DATA.dataInFloat = humidity.relative_humidity;
+    if (DHT11_SENSOR.GetInsideSensorData().humidity != humidity.relative_humidity) {
+      DHT11_SENSOR.setInkubatorHumidity(humidity.relative_humidity);
     }
   }
 
