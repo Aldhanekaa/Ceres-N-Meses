@@ -7,22 +7,23 @@ DateTime Date;
 char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 RTC_DS3231 rtc;
 
-void showDate(void);
-void showTime(void);
-void showDay(void); 
+// void showDate(void);
+// void showTime(void);
+// void showDay(void); 
 
 #define DHTPIN A1 // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT11 // DHT 11
+// #define DHTPIN_OUTSIDE A[X] // Change the X | Digital pin connected to the DHT sensor
 #define LED 5
 
 DHT_Unified dht_inside_incubator(DHTPIN, DHTTYPE);
+// DHT_Unified dht_outside_incubator(DHTPIN_OUTSIDE, DHTTYPE);
 
-float DHT11_Temperature;
-int Sunlight_intensity;
+int Sunlight_intensity_inside;
+int Sunlight_intensity_outside;
 float maksTemperature = 25.0;
 
-sensor_previous_data_union Sunlight_intensity_previous_data;
-sensor_previous_data_union Soil_moisture_previous_data;
+
 
 LED_DATA LED_GROWTH;
 DHT11_DATA Outside;
@@ -35,7 +36,7 @@ void setup() {
   // DHT11_SENSOR
   Serial.begin(9600);
 
-  Sunlight_intensity_previous_data.dataInInt = -1;
+  // Sunlight_intensity_inside_previous_data.dataInInt = -1;
   LED_GROWTH.status = false;
   LED_GROWTH.LED_PIN = 5;
 
@@ -69,7 +70,8 @@ void setup() {
 }
 
 void loop() {
-  Sunlight_intensity = map(analogRead(A0), 1023, 78, 0, 100); // sambungin LDR module ke analog pin A0 ; Map digunakn untuk mengkonversi ke persen
+  Sunlight_intensity_inside = map(analogRead(A0), 1023, 78, 0, 100); // sambungin LDR module ke analog pin A0 ; Map digunakn untuk mengkonversi ke persen
+  // Sunlight_intensity_outside = map(analogRead(A[X]), 1023, 78, 0, 100); // sambungin LDR module ke analog pin A[X] ; Map digunakn untuk mengkonversi ke persen
   int soilMoisture = map(analogRead(A2), 1023, 200, 0, 100);  // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
 
   Date = rtc.now();
@@ -80,7 +82,7 @@ void loop() {
   // hari, kamu bisa ganti isinye di pariable daysOfTheWeek
   String day = daysOfTheWeek[Date.dayOfTheWeek()];
 
-  // Sunlight_intensity_previous_data.dataInInt = -1;
+  // Sunlight_intensity_inside_inside_previous_data.dataInInt = -1;
   sensors_event_t humidity_of_dht_inside_incubator;
   sensors_event_t temperature_of_dht_inside_incubator;
   
@@ -98,24 +100,26 @@ void loop() {
   // uncoment this code below if you've connected DHT11 outside
   // dht_outside_incubator.humidity().getEvent(&humidity_of_dht_inside_incubator);
 
-  if (Sunlight_intensity != Sunlight_intensity_previous_data.dataInInt)
+  if (Sunlight_intensity_inside < 55)
   {
-    Sunlight_intensity_previous_data.dataInInt = Sunlight_intensity;
-    Serial.print("Sunlight intensity: ");
-    Serial.println(Sunlight_intensity);
-
     // jika sinar matahari kurang dari 55% | source : http://1001caramenanam.com/budidaya-anggrek-dendrobium/
-    if (Sunlight_intensity_previous_data.dataInInt < 55) {
-      turn_led(true, &LED_GROWTH);
-    }else{
-      turn_led(false, &LED_GROWTH);
-    }
+    turn_led(true, &LED_GROWTH);
+  }else{
+    turn_led(false, &LED_GROWTH);
   }
 
-  if (soilMoisture != Soil_moisture_previous_data.dataInInt) {
-    Soil_moisture_previous_data.dataInInt = soilMoisture;
-    Serial.print("Soil Moisture: ");
-    Serial.println(Soil_moisture_previous_data.dataInInt);
+  if (soilMoisture) {
+    // Soil_moisture_previous_data.dataInInt = soilMoisture;
+    // Serial.print("Soil Moisture: ");
+    // Serial.println(Soil_moisture_previous_data.dataInInt);
+
+    int N = 20;
+
+    // if (soilMoisture <= N) {
+    //   // maka siram air
+    // } else {
+    //   // jangan siram air
+    // }
   }
 
   /* saved the DHT11 temperature that placed inside of incubator */

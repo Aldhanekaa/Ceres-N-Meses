@@ -1,5 +1,7 @@
 library: Adafruit DHT SENSOR
 
+kamu membutuhkan: vscode dan plugin platfromIO
+
 ```c++
 
   Serial.print("DAY :");
