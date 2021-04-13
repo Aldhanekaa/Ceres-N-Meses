@@ -7,17 +7,20 @@
 DHT_Unified dht(DHTPIN, DHTTYPE);
 
 float DHT11_Temperature;
-unsigned int Sunlight_intensity;
+int Sunlight_intensity;
 float maksTemperature = 25.0;
 
 sensor_previous_data_union DHT11_PREVIOUS_Temperature_DATA;
 sensor_previous_data_union DHT11_PREVIOUS_Humidity_DATA;
 sensor_previous_data_union Sunlight_intensity_previous_data;
+sensor_previous_data_union Soil_moisture_previous_data;
 LED_DATA LED_GROWTH;
 
 arrayOfData<sensor_previous_data_union, 2> DATAS_FOR_LED_GROWTH;
 
 void setup() {
+  Sunlight_intensity_previous_data.dataInInt = -1;
+
   LED_GROWTH.status = false;
   LED_GROWTH.LED_PIN = 5;
 
@@ -28,11 +31,11 @@ void setup() {
 
   pinMode(LED_GROWTH.LED_PIN, OUTPUT);
     // pinMode(6, INPUT);
-
+  pinMode(4, INPUT);
 }
 
-void loop() { 
-
+void loop() {
+  // Sunlight_intensity_previous_data.dataInInt = -1;
   sensors_event_t humidity;
   sensors_event_t temperature;
   
@@ -41,25 +44,33 @@ void loop() {
 
   // Get humidity event and print its value.
   dht.humidity().getEvent(&humidity);
-  Sunlight_intensity = analogRead(A0);
-  Serial.println(map(analogRead(A2), 1023, 200, 0, 100));
+  Sunlight_intensity = map(analogRead(A0), 1023, 78, 0, 100);
+  int soilMoisture = map(analogRead(A2), 1023, 200, 0, 100);
   // digitalWrite(true, &LED_GROWTH);
 
-    // Serial.print("Sunlight intensity: ");
-    // Serial.println(Sunlight_intensity);
+  // Serial.print("Sunlight intensity: ");
+  // Serial.println(Sunlight_intensity);
+  // Serial.print("Sunlight intensity: ");
+  // Serial.println(Sunlight_intensity);
+  // turn_led(true, &LED_GROWTH);
 
-
-  if (Sunlight_intensity != Sunlight_intensity_previous_data.dataInFloat)
+  if (Sunlight_intensity != Sunlight_intensity_previous_data.dataInInt)
   {
-    Sunlight_intensity_previous_data.dataInFloat = Sunlight_intensity;
+    Sunlight_intensity_previous_data.dataInInt = Sunlight_intensity;
     Serial.print("Sunlight intensity: ");
     Serial.println(Sunlight_intensity);
 
-    // if (Sunlight_intensity >= 1000) {
-    //   turn_led(true, &LED_GROWTH);
-    // }else if (temperature.temperature >= maksTemperature && Sunlight_intensity < 1000) {
-    //   turn_led(false, &LED_GROWTH);
-    // }
+    if (Sunlight_intensity_previous_data.dataInInt <= 30) {
+      turn_led(true, &LED_GROWTH);
+    }else{
+      turn_led(false, &LED_GROWTH);
+    }
+  }
+
+  if (soilMoisture != Soil_moisture_previous_data.dataInInt) {
+    Soil_moisture_previous_data.dataInInt = soilMoisture;
+    Serial.print("Soil Moisture: ");
+    Serial.println(Soil_moisture_previous_data.dataInInt);
   }
 
   if (isnan(temperature.temperature)) {
@@ -77,15 +88,22 @@ void loop() {
       Serial.print(humidity.relative_humidity);
       Serial.println(F("%"));
 
+      if (humidity.relative_humidity < 60) {
+        Serial.print("\nKAMI MEMBUTUHKAN UDARA! SIRAM TANAMAN INI SEGERA!\n\n");
+      }else {
+        Serial.print("\nKAMI TIDAK MEMBUTUHKAN UDARA!\n\n");
+      }
+      
       Serial.println("=================================================\n\n");
 
-      if (temperature.temperature < maksTemperature) {
-        turn_led(true, &LED_GROWTH);
-      }
-      else if (Sunlight_intensity < 1000)
-      {
-        turn_led(false, &LED_GROWTH);
-      }
+
+      // if (temperature.temperature < maksTemperature) {
+      //   turn_led(true, &LED_GROWTH);
+      // }
+      // else if (Sunlight_intensity < 1000)
+      // {
+      //   turn_led(false, &LED_GROWTH);
+      // }
     }
 
     if (DHT11_PREVIOUS_Temperature_DATA.dataInFloat != temperature.temperature) {

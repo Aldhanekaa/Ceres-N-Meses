@@ -9,15 +9,14 @@ void turn_led(bool status, LED_DATA *previous_data) {
   if (status)
   {
     digitalWrite(previous_data->LED_PIN, HIGH);
-    previous_data->LED_PIN = true;
-    Serial.println(previous_data->LED_PIN);
+    previous_data->status = true;    // Serial.println(previous_data->LED_PIN);
 
   }
-  else if (!status)
+  else 
   {
     digitalWrite(previous_data->LED_PIN, LOW);
-    previous_data->LED_PIN = false;
-    Serial.println(previous_data->LED_PIN);
+    previous_data->status = false;
+    // Serial.println(previous_data->LED_PIN);
   }
 }
 
