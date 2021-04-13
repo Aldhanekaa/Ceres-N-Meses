@@ -1,0 +1,1 @@
+library: Adafruit DHT SENSOR
