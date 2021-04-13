@@ -82,7 +82,6 @@ void loop() {
   // hari, kamu bisa ganti isinye di pariable daysOfTheWeek
   String day = daysOfTheWeek[Date.dayOfTheWeek()];
 
-  // Sunlight_intensity_inside_inside_previous_data.dataInInt = -1;
   sensors_event_t humidity_of_dht_inside_incubator;
   sensors_event_t temperature_of_dht_inside_incubator;
   
@@ -109,9 +108,6 @@ void loop() {
   }
 
   if (soilMoisture) {
-    // Soil_moisture_previous_data.dataInInt = soilMoisture;
-    // Serial.print("Soil Moisture: ");
-    // Serial.println(Soil_moisture_previous_data.dataInInt);
 
     int N = 20;
 
