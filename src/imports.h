@@ -16,4 +16,12 @@
   #include <data/arrayOfDatas.h>
 #endif
 
+#ifndef _sensor
+  #include <data/sensor/sensor.h>
+#endif
+
+#ifndef _DHT_SENSOR_H
+  #include <sensors/DHT11_SENSOR.h>
+#endif
+
 #include <utils/turn_led.h>

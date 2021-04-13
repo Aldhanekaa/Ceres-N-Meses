@@ -22,11 +22,26 @@ sensor_previous_data_union DHT11_PREVIOUS_Temperature_DATA;
 sensor_previous_data_union DHT11_PREVIOUS_Humidity_DATA;
 sensor_previous_data_union Sunlight_intensity_previous_data;
 sensor_previous_data_union Soil_moisture_previous_data;
+
+arrayOfData<sensor_previous_data_union, 2> DHT_INSIDE;
+
 LED_DATA LED_GROWTH;
+
+struct BRUH {
+  int temperature;
+  int humidity;
+};
+
+BRUH PPP;
+BRUH PPPP;
+
+DHT11_SENSOR_INSTANCE<BRUH,BRUH> DHT11_SENSOR("DHT11",PPP,PPPP);
 
 arrayOfData<sensor_previous_data_union, 2> DATAS_FOR_LED_GROWTH;
 
 void setup() {
+  // DHT11_SENSOR
+
   Sunlight_intensity_previous_data.dataInInt = -1;
   LED_GROWTH.status = false;
   LED_GROWTH.LED_PIN = 5;
@@ -57,32 +72,46 @@ void setup() {
 
 void loop() {
   Date = rtc.now();
-  
+  int year = Date.year();
+  int month = Date.month();
+  int dayInInt = Date.day();
+  String day = daysOfTheWeek[Date.dayOfTheWeek()];
 
-    // Serial.print(Date.year(), DEC);
-    // Serial.print('/');
-    // Serial.print(Date.month(), DEC);
-    // Serial.print('/');
-    // Serial.print(Date.day(), DEC);
-    // Serial.print(" (");
-    // Serial.print(daysOfTheWeek[Date.dayOfTheWeek()]);
-    // Serial.print(") ");
-    // Serial.print(Date.hour(), DEC);
-    // Serial.print(':');
-    // Serial.print(Date.minute(), DEC);
-    // Serial.print(':');
-    // Serial.print(Date.second(), DEC);
-    // Serial.println();
+  Serial.print("DAY :");
+  Serial.println(DHT11_SENSOR.SensorName);
 
-    // Serial.print(" since midnight 1/1/1970 = ");
-    // Serial.print(Date.unixtime());
-    // Serial.print("s = ");
-    // Serial.print(Date.unixtime() / 86400L);
-    // Serial.println("d");
+  /*
+    2021/4/13 (Tue) 15:40:42
+    since midnight 1/1/1970 = 1618328442s = 18730d
+    Temperature: 29.00 C
+  */
 
-    // Serial.print("Temperature: ");
-    // Serial.print(rtc.getTemperature());
-    // Serial.println(" C");
+  // Date.unixtimex
+
+  // Serial.print(Date.year(), DEC);
+  // Serial.print('/');
+  // Serial.print(Date.month(), DEC);
+  // Serial.print('/');
+  // Serial.print(Date.day(), DEC);
+  // Serial.print(" (");
+  // Serial.print(daysOfTheWeek[Date.dayOfTheWeek()]);
+  // Serial.print(") ");
+  // Serial.print(Date.hour(), DEC);
+  // Serial.print(':');
+  // Serial.print(Date.minute(), DEC);
+  // Serial.print(':');
+  // Serial.print(Date.second(), DEC);
+  // Serial.println();
+
+  // Serial.print(" since midnight 1/1/1970 = ");
+  // Serial.print(Date.unixtime());
+  // Serial.print("s = ");
+  // Serial.print(Date.unixtime() / 86400L);
+  // Serial.println("d");
+
+  // Serial.print("Temperature: ");
+  // Serial.print(rtc.getTemperature());
+  // Serial.println(" C");
 
   // Sunlight_intensity_previous_data.dataInInt = -1;
   sensors_event_t humidity;
@@ -132,9 +161,9 @@ void loop() {
       Serial.println(F("%"));
 
       if (humidity.relative_humidity < 60) {
-        Serial.print("\nKAMI MEMBUTUHKAN UDARA! SIRAM TANAMAN INI SEGERA!\n\n");
+        Serial.print("\nKAMI MEMBUTUHKAN KELEMBABAN UDARA! SIRAM TANAMAN INI SEGERA!\n\n");
       }else {
-        Serial.print("\nKAMI TIDAK MEMBUTUHKAN UDARA!\n\n");
+        Serial.print("\nKAMI TIDAK MEMBUTUHKAN KELEMBABAN UDARA!\n\n");
       }
       
       Serial.println("=================================================\n\n");
