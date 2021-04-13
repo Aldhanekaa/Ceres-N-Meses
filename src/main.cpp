@@ -1,4 +1,7 @@
+// oof too many sripts yea?
 #include <imports.h>
+
+void printDHT11_data(sensors_event_t *temperature, sensors_event_t *humidity, int Place);
 
 DateTime Date;
 char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
@@ -12,7 +15,7 @@ void showDay(void);
 #define DHTTYPE DHT11 // DHT 11
 #define LED 5
 
-DHT_Unified dht(DHTPIN, DHTTYPE);
+DHT_Unified dht_inside_incubator(DHTPIN, DHTTYPE);
 
 float DHT11_Temperature;
 int Sunlight_intensity;
@@ -21,33 +24,32 @@ float maksTemperature = 25.0;
 sensor_previous_data_union Sunlight_intensity_previous_data;
 sensor_previous_data_union Soil_moisture_previous_data;
 
-arrayOfData<sensor_previous_data_union, 2> DHT_INSIDE;
-
 LED_DATA LED_GROWTH;
+DHT11_DATA Outside;
+DHT11_DATA Inside;
 
-DHT11_DATA PPP;
-DHT11_DATA PPPP;
-
-DHT11_SENSOR_INSTANCE DHT11_SENSOR("DHT11",PPP,PPPP);
-
-arrayOfData<sensor_previous_data_union, 2> DATAS_FOR_LED_GROWTH;
+DHT11_SENSOR_INSTANCE DHT11_SENSOR("DHT11",Outside,Inside);
+Sensor<int, int> SunlightIntensity("sunlight_intensity", -1, -1);
 
 void setup() {
   // DHT11_SENSOR
+  Serial.begin(9600);
 
   Sunlight_intensity_previous_data.dataInInt = -1;
   LED_GROWTH.status = false;
   LED_GROWTH.LED_PIN = 5;
 
   Serial.println(F("DHTxx Unified Sensor Example"));
-
-  Serial.begin(9600);
   // Initialize device.
-  dht.begin();
+  dht_inside_incubator.begin();
 
+  // INISIALISASI DIGITAL INPUT / OUTPUT
   pinMode(LED_GROWTH.LED_PIN, OUTPUT);
   pinMode(4, INPUT);
+  // INISIALISASI DIGITAL INPUT / OUTPUT
 
+
+  // INISIALISASI RTC (REAL TIME CLOCK)
   if (!rtc.begin()) 
   {
     Serial.println("Couldn't find RTC Module");
@@ -61,62 +63,40 @@ void setup() {
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  // INISIALISASI RTC (REAL TIME CLOCK)
+
+
 }
 
 void loop() {
+  Sunlight_intensity = map(analogRead(A0), 1023, 78, 0, 100); // sambungin LDR module ke analog pin A0 ; Map digunakn untuk mengkonversi ke persen
+  int soilMoisture = map(analogRead(A2), 1023, 200, 0, 100);  // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
+
   Date = rtc.now();
   int year = Date.year();
   int month = Date.month();
   int dayInInt = Date.day();
+
+  // hari, kamu bisa ganti isinye di pariable daysOfTheWeek
   String day = daysOfTheWeek[Date.dayOfTheWeek()];
 
-  // Serial.print("DAY :");
-  // Serial.println(DHT11_SENSOR.GetOutsideSensorData().humidity);
-
-  /*
-    2021/4/13 (Tue) 15:40:42
-    since midnight 1/1/1970 = 1618328442s = 18730d
-    Temperature: 29.00 C
-  */
-
-  // Date.unixtimex
-
-  // Serial.print(Date.year(), DEC);
-  // Serial.print('/');
-  // Serial.print(Date.month(), DEC);
-  // Serial.print('/');
-  // Serial.print(Date.day(), DEC);
-  // Serial.print(" (");
-  // Serial.print(daysOfTheWeek[Date.dayOfTheWeek()]);
-  // Serial.print(") ");
-  // Serial.print(Date.hour(), DEC);
-  // Serial.print(':');
-  // Serial.print(Date.minute(), DEC);
-  // Serial.print(':');
-  // Serial.print(Date.second(), DEC);
-  // Serial.println();
-
-  // Serial.print(" since midnight 1/1/1970 = ");
-  // Serial.print(Date.unixtime());
-  // Serial.print("s = ");
-  // Serial.print(Date.unixtime() / 86400L);
-  // Serial.println("d");
-
-  // Serial.print("Temperature: ");
-  // Serial.print(rtc.getTemperature());
-  // Serial.println(" C");
-
   // Sunlight_intensity_previous_data.dataInInt = -1;
-  sensors_event_t humidity;
-  sensors_event_t temperature;
+  sensors_event_t humidity_of_dht_inside_incubator;
+  sensors_event_t temperature_of_dht_inside_incubator;
   
+  // uncoment this if you've connected DHT11 outside
+  // sensors_event_t humidity_of_dht_outside_incubator;
+  // sensors_event_t temperature_of_dht_outside_incubator;
+
   // Get temperature event and print its value.
-  dht.temperature().getEvent(&temperature);
+  dht_inside_incubator.temperature().getEvent(&temperature_of_dht_inside_incubator);
+  // uncoment this code below if you've connected DHT11 outside
+  // dht_outside_incubator.temperature().getEvent(&temperature_of_dht_outside_incubator);
 
   // Get humidity event and print its value.
-  dht.humidity().getEvent(&humidity);
-  Sunlight_intensity = map(analogRead(A0), 1023, 78, 0, 100);
-  int soilMoisture = map(analogRead(A2), 1023, 200, 0, 100);
+  dht_inside_incubator.humidity().getEvent(&humidity_of_dht_inside_incubator);
+  // uncoment this code below if you've connected DHT11 outside
+  // dht_outside_incubator.humidity().getEvent(&humidity_of_dht_inside_incubator);
 
   if (Sunlight_intensity != Sunlight_intensity_previous_data.dataInInt)
   {
@@ -124,7 +104,8 @@ void loop() {
     Serial.print("Sunlight intensity: ");
     Serial.println(Sunlight_intensity);
 
-    if (Sunlight_intensity_previous_data.dataInInt <= 30) {
+    // jika sinar matahari kurang dari 55% | source : http://1001caramenanam.com/budidaya-anggrek-dendrobium/
+    if (Sunlight_intensity_previous_data.dataInInt < 55) {
       turn_led(true, &LED_GROWTH);
     }else{
       turn_led(false, &LED_GROWTH);
@@ -135,30 +116,111 @@ void loop() {
     Soil_moisture_previous_data.dataInInt = soilMoisture;
     Serial.print("Soil Moisture: ");
     Serial.println(Soil_moisture_previous_data.dataInInt);
-
   }
 
-  if (isnan(temperature.temperature)) {
+  /* saved the DHT11 temperature that placed inside of incubator */
+  // if error occurs on the sensor:
+  if (isnan(temperature_of_dht_inside_incubator.temperature)) {
     Serial.println(F("Error reading temperature!"));
   }
   else {
+    if (DHT11_SENSOR.GetInsideSensorData().temperature != temperature_of_dht_inside_incubator.temperature) {
 
-    if (DHT11_SENSOR.GetInsideSensorData().temperature != temperature.temperature || (DHT11_SENSOR.GetInsideSensorData().humidity != humidity.relative_humidity && !isnan(humidity.relative_humidity))) {
+      DHT11_SENSOR.SetTemperature(&temperature_of_dht_inside_incubator, 1); // 1 means that we want to saved data to the DHT11 Sensor that Inside the incubator
+    }
+  }
+  /* saved the DHT11 temperature that placed inside of incubator */
+
+
+  /* =============== UNKOMEN INI KETIKA KAMU TELAH MENANAM DHT11 DILUAR INKUBATOR ===============*/
+  /* saved the DHT11 temperature that placed outside of incubator */
+  // if error occurs on the sensor:
+  // if (isnan(temperature_of_dht_outside_incubator.temperature)) {
+  //   Serial.println(F("Error reading temperature!"));
+  // }
+  // else {
+  //   printDHT11_data(&temperature_of_dht_outside_incubator, &humidity_of_dht_outside_incubator, 0);
+
+  //   if (DHT11_SENSOR.GetOutsideSensorData().temperature != temperature_of_dht_outside_incubator.temperature) {
+  //     DHT11_SENSOR.SetTemperature(&temperature_of_dht_outside_incubator, 0); // 0 means that we want to saved data to the DHT11 Sensor that placed Outside the incubator
+  //   }
+  // }
+  /* saved the DHT11 temperature that placed inside of incubator */
+  /* =============== UNKOMEN INI KETIKA KAMU TELAH MENANAM DHT11 DILUAR INKUBATOR ===============*/
+
+  /* saved the DHT11 temperature that placed inside of incubator */
+  // if error occurs on the sensor:
+  if (isnan(humidity_of_dht_inside_incubator.relative_humidity)) {
+    Serial.println(F("Error reading temperature!"));
+  }
+  else {
+    printDHT11_data(&temperature_of_dht_inside_incubator, &humidity_of_dht_inside_incubator, 1);
+
+    if (DHT11_SENSOR.GetInsideSensorData().humidity != humidity_of_dht_inside_incubator.relative_humidity) {
+      DHT11_SENSOR.SetHumidty(&humidity_of_dht_inside_incubator, 1); // 1 means that we want to saved data to the DHT11 Sensor that Inside the incubator
+    }
+  }
+  /* saved the DHT11 temperature that placed inside of incubator */
+
+
+  // DHT11_SENSOR.SetHumidty(&humidity_of_dht_inside_incubator, 1);
+  // DHT11_SENSOR.SetHumidty(&humidity_of_dht_inside_incubator);
+
+  delay(1000);
+}
+
+
+// DO NOT CROSS
+
+
+void printDHT11_data(sensors_event_t* temperature,sensors_event_t* humidity, int Place) {
+
+  String PlaceInString;
+
+  float DHT11_TEMPERATURE;
+  float DHT11_HUMIDITY;
+
+  float temperatureInFloat;
+  float humidityInFloat;
+
+  switch (Place)
+  {
+  case 1:
+    PlaceInString = "Inside";
+    DHT11_TEMPERATURE = DHT11_SENSOR.GetInsideSensorData().temperature;
+    DHT11_HUMIDITY = DHT11_SENSOR.GetInsideSensorData().humidity;
+    break;
+
+  default:
+    PlaceInString = "Outside";
+    DHT11_TEMPERATURE = DHT11_SENSOR.GetOutsideSensorData().temperature;
+    DHT11_HUMIDITY = DHT11_SENSOR.GetOutsideSensorData().humidity;
+
+    break;
+  }
+
+    if (DHT11_TEMPERATURE != temperature->temperature || (DHT11_HUMIDITY != humidity->relative_humidity && !isnan(humidity->relative_humidity)))
+    {
+      temperatureInFloat = temperature->temperature;
+      humidityInFloat = humidity->relative_humidity;
 
       Serial.println("=================================================");
-      Serial.print("event.temperature: ");
-      Serial.print(temperature.temperature);
+      Serial.print("DHT11, POSITION: ");
+      Serial.println(PlaceInString);
+
+      Serial.print("\nevent.temperature: ");
+      Serial.print(temperatureInFloat);
       Serial.println(" C");
       Serial.print(F("Humidity: "));
-      Serial.print(humidity.relative_humidity);
+      Serial.print(humidityInFloat);
       Serial.println(F("%"));
 
-      if (humidity.relative_humidity < 60) {
+      if (humidityInFloat < 60) {
         Serial.print("\nKAMI MEMBUTUHKAN KELEMBABAN UDARA! SIRAM TANAMAN INI SEGERA!\n\n");
       }else {
         Serial.print("\nKAMI TIDAK MEMBUTUHKAN KELEMBABAN UDARA!\n\n");
       }
-      
+        
       Serial.println("=================================================\n\n");
 
 
@@ -171,19 +233,5 @@ void loop() {
       // }
     }
 
-    if (DHT11_SENSOR.GetInsideSensorData().temperature != temperature.temperature) {
-      DHT11_SENSOR.setInkubatorTemperature(temperature.temperature);
-    }
-  }
-
-  if (isnan(humidity.relative_humidity)) {
-    Serial.println(F("Error reading humidity!"));
-  }
-  else {
-    if (DHT11_SENSOR.GetInsideSensorData().humidity != humidity.relative_humidity) {
-      DHT11_SENSOR.setInkubatorHumidity(humidity.relative_humidity);
-    }
-  }
-
-  delay(1000);
+  return;
 }

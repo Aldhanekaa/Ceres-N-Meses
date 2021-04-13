@@ -12,10 +12,6 @@
   #include <data/sensor_previous_data_union.h>
 #endif
 
-#ifndef _arrayOfData
-  #include <data/arrayOfDatas.h>
-#endif
-
 #ifndef _sensor
   #include <data/sensor/sensor.h>
 #endif
