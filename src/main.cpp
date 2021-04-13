@@ -1,5 +1,13 @@
 #include <imports.h>
 
+DateTime Date;
+char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+RTC_DS3231 rtc;
+
+void showDate(void);
+void showTime(void);
+void showDay(void); 
+
 #define DHTPIN A1 // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT11 // DHT 11
 #define LED 5
@@ -20,21 +28,62 @@ arrayOfData<sensor_previous_data_union, 2> DATAS_FOR_LED_GROWTH;
 
 void setup() {
   Sunlight_intensity_previous_data.dataInInt = -1;
-
   LED_GROWTH.status = false;
   LED_GROWTH.LED_PIN = 5;
+
+  Serial.println(F("DHTxx Unified Sensor Example"));
 
   Serial.begin(9600);
   // Initialize device.
   dht.begin();
-  Serial.println(F("DHTxx Unified Sensor Example"));
 
   pinMode(LED_GROWTH.LED_PIN, OUTPUT);
-    // pinMode(6, INPUT);
   pinMode(4, INPUT);
+
+  if (!rtc.begin()) 
+  {
+    Serial.println("Couldn't find RTC Module");
+    while (1)
+      ;
+  }
+
+  if (rtc.lostPower()) 
+  {
+    Serial.println("RTC lost power, lets set the time!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 }
 
 void loop() {
+  Date = rtc.now();
+  
+
+    // Serial.print(Date.year(), DEC);
+    // Serial.print('/');
+    // Serial.print(Date.month(), DEC);
+    // Serial.print('/');
+    // Serial.print(Date.day(), DEC);
+    // Serial.print(" (");
+    // Serial.print(daysOfTheWeek[Date.dayOfTheWeek()]);
+    // Serial.print(") ");
+    // Serial.print(Date.hour(), DEC);
+    // Serial.print(':');
+    // Serial.print(Date.minute(), DEC);
+    // Serial.print(':');
+    // Serial.print(Date.second(), DEC);
+    // Serial.println();
+
+    // Serial.print(" since midnight 1/1/1970 = ");
+    // Serial.print(Date.unixtime());
+    // Serial.print("s = ");
+    // Serial.print(Date.unixtime() / 86400L);
+    // Serial.println("d");
+
+    // Serial.print("Temperature: ");
+    // Serial.print(rtc.getTemperature());
+    // Serial.println(" C");
+
   // Sunlight_intensity_previous_data.dataInInt = -1;
   sensors_event_t humidity;
   sensors_event_t temperature;
@@ -46,13 +95,6 @@ void loop() {
   dht.humidity().getEvent(&humidity);
   Sunlight_intensity = map(analogRead(A0), 1023, 78, 0, 100);
   int soilMoisture = map(analogRead(A2), 1023, 200, 0, 100);
-  // digitalWrite(true, &LED_GROWTH);
-
-  // Serial.print("Sunlight intensity: ");
-  // Serial.println(Sunlight_intensity);
-  // Serial.print("Sunlight intensity: ");
-  // Serial.println(Sunlight_intensity);
-  // turn_led(true, &LED_GROWTH);
 
   if (Sunlight_intensity != Sunlight_intensity_previous_data.dataInInt)
   {
@@ -71,6 +113,7 @@ void loop() {
     Soil_moisture_previous_data.dataInInt = soilMoisture;
     Serial.print("Soil Moisture: ");
     Serial.println(Soil_moisture_previous_data.dataInInt);
+
   }
 
   if (isnan(temperature.temperature)) {
@@ -120,5 +163,5 @@ void loop() {
     }
   }
 
-  // delay(500);
+  delay(1000);
 }

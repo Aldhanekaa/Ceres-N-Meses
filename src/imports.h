@@ -2,6 +2,7 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h> // minus ke ground, + ke 5V, dan tengah ke A0
+#include <RTClib.h>
 
 #ifndef _LED_DATA
   #include <data/LED_DATA.h>
