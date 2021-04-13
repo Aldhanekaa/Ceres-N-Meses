@@ -75,6 +75,7 @@ void loop() {
   int soilMoisture = map(analogRead(A2), 1023, 200, 0, 100);  // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
 
   Date = rtc.now();
+  
   int year = Date.year();
   int month = Date.month();
   int dayInInt = Date.day();
@@ -107,16 +108,12 @@ void loop() {
     turn_led(false, &LED_GROWTH);
   }
 
-  if (soilMoisture) {
+    if (soilMoisture <= maksTemperature) {
+      // maka siram air
+    } else {
+      // jangan siram air
+    }
 
-    int N = 20;
-
-    // if (soilMoisture <= N) {
-    //   // maka siram air
-    // } else {
-    //   // jangan siram air
-    // }
-  }
 
   /* saved the DHT11 temperature that placed inside of incubator */
   // if error occurs on the sensor:
@@ -166,7 +163,7 @@ void loop() {
   // DHT11_SENSOR.SetHumidty(&humidity_of_dht_inside_incubator, 1);
   // DHT11_SENSOR.SetHumidty(&humidity_of_dht_inside_incubator);
 
-  delay(1000);
+  // delay(1000);
 }
 
 
