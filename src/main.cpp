@@ -21,9 +21,7 @@ DHT_Unified dht_inside_incubator(DHTPIN, DHTTYPE);
 
 int Sunlight_intensity_inside;
 int Sunlight_intensity_outside;
-float maksTemperature = 25.0;
-
-
+int maxOfSoilMoisture = 60;
 
 LED_DATA LED_GROWTH;
 DHT11_DATA Outside;
@@ -33,6 +31,7 @@ DHT11_SENSOR_INSTANCE DHT11_SENSOR("DHT11",Outside,Inside);
 Sensor<int, int> SunlightIntensity("sunlight_intensity", -1, -1);
 
 void setup() {
+
   // DHT11_SENSOR
   Serial.begin(9600);
 
@@ -80,6 +79,25 @@ void loop() {
   int month = Date.month();
   int dayInInt = Date.day();
 
+  int hour = Date.hour();
+  int minute = Date.minute();
+
+  Serial.print(Date.year(), DEC);
+  Serial.print('/');
+  Serial.print(Date.month(), DEC);
+  Serial.print('/');
+  Serial.print(Date.day(), DEC);
+  Serial.print(" (");
+  Serial.print(daysOfTheWeek[Date.dayOfTheWeek()]);
+  Serial.print(") ");
+  Serial.print(hour);
+  Serial.print(':');
+  Serial.print(minute);
+  Serial.print(':');
+  Serial.print(Date.second());
+  Serial.println();
+
+
   // hari, kamu bisa ganti isinye di pariable daysOfTheWeek
   String day = daysOfTheWeek[Date.dayOfTheWeek()];
 
@@ -100,6 +118,12 @@ void loop() {
   // uncoment this code below if you've connected DHT11 outside
   // dht_outside_incubator.humidity().getEvent(&humidity_of_dht_inside_incubator);
 
+  // Serial.print("Sunlight_intensity_inside: ");
+  // Serial.println(Sunlight_intensity_inside);
+
+  Serial.print("Sunlight_intensity_inside: ");
+  Serial.println(Sunlight_intensity_inside);
+
   if (Sunlight_intensity_inside < 55)
   {
     // jika sinar matahari kurang dari 55% | source : http://1001caramenanam.com/budidaya-anggrek-dendrobium/
@@ -108,7 +132,7 @@ void loop() {
     turn_led(false, &LED_GROWTH);
   }
 
-    if (soilMoisture <= maksTemperature) {
+    if (soilMoisture <= maxOfSoilMoisture) {
       // maka siram air
     } else {
       // jangan siram air
@@ -119,6 +143,7 @@ void loop() {
   // if error occurs on the sensor:
   if (isnan(temperature_of_dht_inside_incubator.temperature)) {
     Serial.println(F("Error reading temperature!"));
+    Serial.println("hey");
   }
   else {
     if (DHT11_SENSOR.GetInsideSensorData().temperature != temperature_of_dht_inside_incubator.temperature) {
@@ -158,6 +183,42 @@ void loop() {
     }
   }
   /* saved the DHT11 temperature that placed inside of incubator */
+
+  if (DHT11_SENSOR.GetInsideSensorData().humidity < 60) {
+    // siram
+  }else {
+    // tidak siram
+  }
+
+  // Serial.println(hour, minute);
+
+  if (hour == 8) {
+
+    if (DHT11_SENSOR.GetInsideSensorData().humidity < 60) {
+      
+    }else {
+
+    }
+  }else if (hour == 17) {
+    if (DHT11_SENSOR.GetInsideSensorData().humidity < 60) {
+      
+    }else {
+
+    }
+  }
+
+  if (hour >= 18 && hour < 6) {
+    if (DHT11_SENSOR.GetInsideSensorData().temperature < 24 ) {
+      // nyalakan lampu
+    }else {
+
+    }
+  }else {
+    if (DHT11_SENSOR.GetInsideSensorData().temperature < 24 ) {
+          // nyalakan lampu
+    }else {
+    }
+  }
 
 
   // DHT11_SENSOR.SetHumidty(&humidity_of_dht_inside_incubator, 1);
