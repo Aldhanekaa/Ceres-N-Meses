@@ -72,6 +72,8 @@ void setup() {
 }
 
 void loop() {
+  // Serial.println("started");
+  // Serial
   Sunlight_intensity_inside = map(analogRead(A0), 1023, 78, 0, 100); // sambungin LDR module ke analog pin A0 ; Map digunakn untuk mengkonversi ke persen
   // Sunlight_intensity_outside = map(analogRead(A[X]), 1023, 78, 0, 100); // sambungin LDR module ke analog pin A[X] ; Map digunakn untuk mengkonversi ke persen
   int soilMoisture = map(analogRead(A2), 1023, 200, 0, 100);  // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
@@ -106,6 +108,7 @@ void loop() {
 
   sensors_event_t humidity_of_dht_inside_incubator;
   sensors_event_t temperature_of_dht_inside_incubator;
+  // temperature_of_dht_inside_incubator.relative_humidity
   
   // uncoment this if you've connected DHT11 outside
   // sensors_event_t humidity_of_dht_outside_incubator;
@@ -124,19 +127,19 @@ void loop() {
   // Serial.print("Sunlight_intensity_inside: ");
   // Serial.println(Sunlight_intensity_inside);
 
-if (intensityInside.dataInInt != Sunlight_intensity_inside) {
-  intensityInside.dataInInt = Sunlight_intensity_inside;
-  Serial.print("Sunlight_intensity_inside: ");
-  Serial.println(Sunlight_intensity_inside);
+  if (intensityInside.dataInInt != Sunlight_intensity_inside) {
+    intensityInside.dataInInt = Sunlight_intensity_inside;
+    Serial.print("Sunlight_intensity_inside: ");
+    Serial.println(Sunlight_intensity_inside);
 
-}
+  }
 
-if (soilMoisturePreviousData.dataInInt != soilMoisture) {
-  soilMoisturePreviousData.dataInInt = soilMoisture;
-  Serial.print("soil moisture: ");
-  Serial.println(soilMoisturePreviousData.dataInInt);
+  if (soilMoisturePreviousData.dataInInt != soilMoisture) {
+    soilMoisturePreviousData.dataInInt = soilMoisture;
+    Serial.print("soil moisture: ");
+    Serial.println(soilMoisturePreviousData.dataInInt);
 
-}
+  }
       // turn_led(true, &LED_GROWTH);
 
   if (Sunlight_intensity_inside < 55)
@@ -224,18 +227,12 @@ if (soilMoisturePreviousData.dataInInt != soilMoisture) {
   }
 
   if (hour >= 18 && hour < 6) {
-    if (DHT11_SENSOR.GetInsideSensorData().temperature < 24 ) {
-      // nyalakan lampu
-    }else {
-
-    }
-  }else {
-    if (DHT11_SENSOR.GetInsideSensorData().temperature < 24 ) {
-          // nyalakan lampu
-    }else {
-    }
+    triggerLEDGrowth(&DHT11_SENSOR);
   }
-
+  else
+  {
+    triggerLEDGrowth(&DHT11_SENSOR);
+  }
 
   // DHT11_SENSOR.SetHumidty(&humidity_of_dht_inside_incubator, 1);
   // DHT11_SENSOR.SetHumidty(&humidity_of_dht_inside_incubator);

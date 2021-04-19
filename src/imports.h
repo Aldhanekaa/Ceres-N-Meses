@@ -20,4 +20,8 @@
   #include <sensors/DHT11_SENSOR.h>
 #endif
 
+#ifndef _triggers 
+  #include <utils/triggers.h>
+#endif
+
 #include <utils/turn_led.h>
