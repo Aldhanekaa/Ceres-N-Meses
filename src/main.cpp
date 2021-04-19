@@ -27,6 +27,9 @@ LED_DATA LED_GROWTH;
 DHT11_DATA Outside;
 DHT11_DATA Inside;
 
+sensor_previous_data_union intensityInside;
+sensor_previous_data_union soilMoisturePreviousData;
+
 DHT11_SENSOR_INSTANCE DHT11_SENSOR("DHT11",Outside,Inside);
 Sensor<int, int> SunlightIntensity("sunlight_intensity", -1, -1);
 
@@ -82,20 +85,20 @@ void loop() {
   int hour = Date.hour();
   int minute = Date.minute();
 
-  Serial.print(Date.year(), DEC);
-  Serial.print('/');
-  Serial.print(Date.month(), DEC);
-  Serial.print('/');
-  Serial.print(Date.day(), DEC);
-  Serial.print(" (");
-  Serial.print(daysOfTheWeek[Date.dayOfTheWeek()]);
-  Serial.print(") ");
-  Serial.print(hour);
-  Serial.print(':');
-  Serial.print(minute);
-  Serial.print(':');
-  Serial.print(Date.second());
-  Serial.println();
+  // Serial.print(Date.year(), DEC);
+  // Serial.print('/');
+  // Serial.print(Date.month(), DEC);
+  // Serial.print('/');
+  // Serial.print(Date.day(), DEC);
+  // Serial.print(" (");
+  // Serial.print(daysOfTheWeek[Date.dayOfTheWeek()]);
+  // Serial.print(") ");
+  // Serial.print(hour);
+  // Serial.print(':');
+  // Serial.print(minute);
+  // Serial.print(':');
+  // Serial.print(Date.second());
+  // Serial.println();
 
 
   // hari, kamu bisa ganti isinye di pariable daysOfTheWeek
@@ -121,8 +124,20 @@ void loop() {
   // Serial.print("Sunlight_intensity_inside: ");
   // Serial.println(Sunlight_intensity_inside);
 
+if (intensityInside.dataInInt != Sunlight_intensity_inside) {
+  intensityInside.dataInInt = Sunlight_intensity_inside;
   Serial.print("Sunlight_intensity_inside: ");
   Serial.println(Sunlight_intensity_inside);
+
+}
+
+if (soilMoisturePreviousData.dataInInt != soilMoisture) {
+  soilMoisturePreviousData.dataInInt = soilMoisture;
+  Serial.print("soil moisture: ");
+  Serial.println(soilMoisturePreviousData.dataInInt);
+
+}
+      // turn_led(true, &LED_GROWTH);
 
   if (Sunlight_intensity_inside < 55)
   {
@@ -132,8 +147,9 @@ void loop() {
     turn_led(false, &LED_GROWTH);
   }
 
-    if (soilMoisture <= maxOfSoilMoisture) {
-      // maka siram air
+  if (soilMoisture <= maxOfSoilMoisture)
+  {
+    // maka siram air
     } else {
       // jangan siram air
     }
@@ -142,7 +158,7 @@ void loop() {
   /* saved the DHT11 temperature that placed inside of incubator */
   // if error occurs on the sensor:
   if (isnan(temperature_of_dht_inside_incubator.temperature)) {
-    Serial.println(F("Error reading temperature!"));
+    Serial.println(F("Error reading temperature!"));  
     Serial.println("hey");
   }
   else {
