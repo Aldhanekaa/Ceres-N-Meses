@@ -10,6 +10,6 @@ Adapt — remix, transform, and build upon the material
 
 # You are not free to:
 
-Commercial — You may not use the material for commercial purposes.
+Commercial — You may not use the material for commercial purposes or sell this project.
 
 ©️ 2021 | Ceres 'N Meses (Aldhaneka, Asyilah, Nabil, Sasa) .
