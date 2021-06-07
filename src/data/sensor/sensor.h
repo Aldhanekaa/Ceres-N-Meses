@@ -9,10 +9,10 @@ class Sensor {
     protected:
         OUTSIDE_TYPENAME Outside;
         INSIDE_TYPENAME Inside;
-        
+        String SensorName;
+
     public:
 
-        String SensorName;
 
         Sensor(String SensorName , OUTSIDE_TYPENAME Outside, INSIDE_TYPENAME Inside) {
             this->SensorName = SensorName;
@@ -20,4 +20,18 @@ class Sensor {
             this->Inside = Inside;
         }
 
+        INSIDE_TYPENAME& setDataInside() {
+            return this->Inside;
+        }
+        
+        OUTSIDE_TYPENAME& setDataOutside() {
+            return this->Outside;
+        }
+
+        INSIDE_TYPENAME getDataInside() {
+            return this->Inside;
+        }
+        OUTSIDE_TYPENAME getDataOutside() {
+            return this->Outside;
+        }
 };
