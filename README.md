@@ -40,3 +40,13 @@ kamu membutuhkan: vscode dan plugin platfromIO
   Serial.print(rtc.getTemperature());
   Serial.println(" C");
 ```
+
+```
+A0 -> sunlight intensity (using D0)
+A1 -> Soil Moisture
+2  -> DHT11
+```
+
+```
+clock 24 H ; e.g 21:29:6
+```
