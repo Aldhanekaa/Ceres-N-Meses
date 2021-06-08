@@ -20,8 +20,8 @@ const Index = () => (
     <Hero />
     <Main>
       <Text>
-        Example repository of <Code>Next.js</Code> + <Code>chakra-ui</Code> +{' '}
-        <Code>typescript</Code>.
+        <Code>Ceres N Meses</Code> {' '}
+        <Code>Team</Code>.
       </Text>
 
       <List spacing={3} my={0}>
