@@ -42,6 +42,7 @@ void setup() {
   // Initialize device.
   dht.begin();
   Serial.println(F("Using DHTxx Unified Sensor"));
+  pinMode(3, OUTPUT);
 
   // INISIALISASI RTC (REAL TIME CLOCK)
   if (!rtc.begin()) 
@@ -66,13 +67,13 @@ void setup() {
 void loop() {
 
   Date = rtc.now();
-
   int hour = Date.hour();
   int minute = Date.minute();
 
   
   int Sunlight_intensity_inside = map(analogRead(A0), 1014, 10, 0, 100); // sambungin LDR module ke analog pin A0 ; Map digunakn untuk mengkonversi ke persen
-  int soilMoisture = map(analogRead(A1), 1023, 200, 0, 100);  // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
+  int soilMoisture = digitalRead(3); // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
+  Serial.println(hour);
 
   // Get temperature event and print its value.
   sensors_event_t DHT11_INSIDE_INCUBATOR;
@@ -110,8 +111,8 @@ void loop() {
 
   if (SoilMoisture.getDataInside() != soilMoisture) {
     SoilMoisture.setDataInside() = soilMoisture;
-    // Serial.print("soil moisture: ");
-    // Serial.println(SoilMoisture.getDataInside());
+    Serial.print("soil moisture: ");
+    Serial.println(SoilMoisture.getDataInside());
 
   }
 
