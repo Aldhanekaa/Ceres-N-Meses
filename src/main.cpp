@@ -71,9 +71,9 @@ void loop() {
   int minute = Date.minute();
 
   
-  int Sunlight_intensity_inside = map(analogRead(A0), 1014, 10, 0, 100); // sambungin LDR module ke analog pin A0 ; Map digunakn untuk mengkonversi ke persen
+  int Sunlight_intensity_inside = map(analogRead(A0), 755, 40, 0, 100); // sambungin LDR module ke analog pin A0 ; Map digunakn untuk mengkonversi ke persen
   int soilMoisture = digitalRead(3); // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
-  Serial.println(hour);
+  // Serial.println(minute);
 
   // Get temperature event and print its value.
   sensors_event_t DHT11_INSIDE_INCUBATOR;
