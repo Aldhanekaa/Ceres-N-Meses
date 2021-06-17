@@ -72,7 +72,7 @@ void loop() {
   lcd.createChar(0, degreeIcon);
   lcd.createChar(1, christ);
 
-  Date = rtc.now();
+  Date = rtc.now(); 
   int hour = Date.hour();
   int minute = Date.minute();
   int unixTime = Date.unixtime();
