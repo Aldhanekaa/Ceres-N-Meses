@@ -45,6 +45,8 @@ kamu membutuhkan: vscode dan plugin platfromIO
 A0 -> sunlight intensity (using D0)
 A1 -> Soil Moisture
 2  -> DHT11
+3 -> relay solenoid
+4 -> relay LED
 ```
 
 ```

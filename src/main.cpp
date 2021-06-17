@@ -25,24 +25,25 @@
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
 
-// 
-DHT11_DATA Outside;
-DHT11_DATA Inside;
-DHT11_SENSOR_INSTANCE DHT11_SENSOR("DHT11",Outside,Inside);
-
-Sensor<int, int> SunlightIntensity("sunlight_intensity", -1, -1);
-Sensor<int, int> SoilMoisture("soil_moisture", -1, -1);
+// DHT Sensor instance, SunlightIntensity, and SoilMoisture of Sensor Instances were moved to printLCD.hpp
 
 RTC_DS3231 rtc;
 DateTime Date;
 char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
+
 void setup() {
   Serial.begin(9600);
+  pinMode(4, OUTPUT);
+
   // Initialize device.
   dht.begin();
   Serial.println(F("Using DHTxx Unified Sensor"));
-  pinMode(3, OUTPUT);
+
+  lcd.init();
+  lcd.backlight();
+  
+  // pinMode(3, OUTPUT);
 
   // INISIALISASI RTC (REAL TIME CLOCK)
   if (!rtc.begin()) 
@@ -62,29 +63,33 @@ void setup() {
 
   Serial.println("Setup Done!");
 
+  
 }
 
 void loop() {
 
+  lcd.begin(20, 4);
+  lcd.createChar(0, degreeIcon);
+  lcd.createChar(1, christ);
+
   Date = rtc.now();
   int hour = Date.hour();
   int minute = Date.minute();
+  int unixTime = Date.unixtime();
 
-  
   int Sunlight_intensity_inside = map(analogRead(A0), 755, 40, 0, 100); // sambungin LDR module ke analog pin A0 ; Map digunakn untuk mengkonversi ke persen
-  int soilMoisture = digitalRead(3); // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
+  int soilMoisture = map(analogRead(A1), 1023, 0, 0, 100); // A0 disambungin ke A2 ; Map digunakn untuk mengkonversi ke persen
   // Serial.println(minute);
 
   // Get temperature event and print its value.
   sensors_event_t DHT11_INSIDE_INCUBATOR;
-
   // ================== Sunlight Intensity ==================
     if (SunlightIntensity.getDataInside() != Sunlight_intensity_inside) {
     SunlightIntensity.setDataInside() = Sunlight_intensity_inside;
-    Serial.print("Sunlight_intensity_inside: ");
-    Serial.print(analogRead(A0));
-    Serial.print(", ");
-    Serial.println(Sunlight_intensity_inside);
+    // Serial.print("Sunlight_intensity: ");
+    // Serial.print(analogRead(A0));
+    // Serial.print(", ");
+    // Serial.println(Sunlight_intensity_inside);
 
     /*
      * Cahaya yang dibutuhkan oleh anggrek berkisaran 50-70% sehingga tempat tumbuh anggrek harus memiliki atap yang terbuat dari paranet sehingga cahaya yang dibutuhk
@@ -92,23 +97,31 @@ void loop() {
 
     if (SunlightIntensity.getDataInside() < 50) {
       // nyalakan lampu
-    }else if (
-      
-        (DHT11_SENSOR.getDataInside().temperature>21 && (hour >= 18 && hour <= 5)) || 
-       (DHT11_SENSOR.getDataInside().temperature>24 && (hour >= 6 && hour <= 17))
-      
-    ) {
-      // matikan lampu
+      // analogWrite(4, 100);
+      digitalWrite(4, HIGH);
+
     }
+    else if (
+
+        (DHT11_SENSOR.getDataInside().temperature > 21 && (hour >= 18 && hour <= 5)) ||
+        (DHT11_SENSOR.getDataInside().temperature > 24 && (hour >= 6 && hour <= 17))
+
+    )
+    {
+      // matikan lampu
+      // analogWrite(4, 0);
+      digitalWrite(4, LOW);
 
 
+    }
   }
   // ================== End of Sunlight Intensity ==================
 
 
 
   // ================== Soil Moisture ==================
-
+    // Serial.print("soil moisture: ");
+    // Serial.println(soilMoisture);
   if (SoilMoisture.getDataInside() != soilMoisture) {
     SoilMoisture.setDataInside() = soilMoisture;
     Serial.print("soil moisture: ");
@@ -144,14 +157,14 @@ void loop() {
        * sedang siang hari 24-30OC
        * source :  http://balithi.litbang.pertanian.go.id/berita-144-budidaya-anggrek.html
        */
-      if (
-        (DHT11_SENSOR.getDataInside().temperature<21 && (hour >= 18 && hour <= 5)) || 
-        (DHT11_SENSOR.getDataInside().temperature<24 && (hour >= 6 && hour <= 17))
-      ) {
-        // nyalakan lampu
-      }else {
-        // matikan lampu
-      }
+      // if (
+      //   (DHT11_SENSOR.getDataInside().temperature<21 && (hour >= 18 && hour <= 5)) || 
+      //   (DHT11_SENSOR.getDataInside().temperature<24 && (hour >= 6 && hour <= 17))
+      // ) {
+      //   // nyalakan lampu
+      // }else {
+      //   // matikan lampu
+      // }
     }
   }
 
@@ -180,7 +193,23 @@ void loop() {
     }
   }
 
+
   // ================== END OF DHT ==================
+// lcd.setCursor(0, 0); // Set the cursor on the first column and first row.(7->column, 0->row)
 
+//         lcd.print("Ceres N Meses        "); // Print the string "Hello World!"
+        
+//         lcd.setCursor(0, 1); //Set the cursor on the third column and the second row (counting starts at 0!).row 1
+//         for (int i = 1; i <= 20; i++)
+//         {
+//             lcd.print("-");
+//         }
 
+//         lcd.setCursor(0, 2); //Set the cursor on the third column and the second row (counting starts at 0!).row 1
+//         lcd.print("Temperature: 20");
+//         lcd.write(0);
+        // lcd.print(String(hour));
+  printLCD(unixTime);
+  // Serial.print("unixTime: ");
+  // Serial.println(unixTime);
 }
